@@ -1,14 +1,11 @@
 package de.siphalor.amecs.impl.mixin;
 
-import net.minecraft.client.gui.screen.Screen;
-import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -18,18 +15,16 @@ import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.AmecsAPI;
 import de.siphalor.amecs.impl.KeyBindingManager;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
+import de.siphalor.amecs.impl.duck.IKeybindsScreen;
 import de.siphalor.amecs.impl.duck.IMouse;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import de.siphalor.amecs.impl.version.KeybindsScreenVersionHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
-import net.minecraft.client.gui.screen.option.KeybindsScreen;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 
 // TODO: Fix the priority when Mixin 0.8 is a thing and try again (-> MaLiLib causes incompatibilities)
-@Environment(EnvType.CLIENT)
 @Mixin(value = Mouse.class, priority = -2000)
 public class MixinMouse implements IMouse {
 	@Shadow
@@ -47,7 +42,13 @@ public class MixinMouse implements IMouse {
 		return mouseScrolled_eventUsed;
 	}
 
-	@Inject(method = "onMouseButton", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;", ordinal = 0), cancellable = true)
+	@Inject(
+		method = "onMouseButton",
+		at = @At(
+			value = "FIELD",
+			target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;",
+			ordinal = 0),
+		cancellable = true)
 	private void onMouseButtonPriority(long window, int type, int state, int int_3, CallbackInfo callbackInfo) {
 		if (state == 1 && KeyBindingManager.onKeyPressedPriority(InputUtil.Type.MOUSE.createFromCode(type))) {
 			callbackInfo.cancel();
@@ -90,7 +91,13 @@ public class MixinMouse implements IMouse {
 		// default minecraft scroll logic is in HotbarScrollKeyBinding in amecs
 	}
 
-	@Inject(method = "onMouseScroll", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSpectator()Z", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD)
+	@Inject(
+		method = "onMouseScroll",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSpectator()Z",
+			ordinal = 0),
+		locals = LocalCapture.CAPTURE_FAILHARD)
 	private void isSpectator_onMouseScroll(long window, double rawX, double rawY, CallbackInfo callbackInfo, double deltaY, float g) {
 		// we are here in the else branch of "this.client.currentScreen != null" meaning currentScreen == null
 		if (AmecsAPI.TRIGGER_KEYBINDING_ON_SCROLL) {
@@ -99,13 +106,13 @@ public class MixinMouse implements IMouse {
 	}
 
 	@Inject(
-			method = "onMouseScroll",
-			at = @At(
-					value = "INVOKE_ASSIGN", ordinal = 0, shift = At.Shift.AFTER,
-					target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDD)Z"
-			),
-			locals = LocalCapture.CAPTURE_FAILSOFT
-	)
+		method = "onMouseScroll",
+		at = @At(
+			value = "INVOKE_ASSIGN",
+			ordinal = 0,
+			shift = At.Shift.AFTER,
+			target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDD)Z"),
+		locals = LocalCapture.CAPTURE_FAILSOFT)
 	private void mouseScrolled_onMouseScrolled(long window, double d, double e, CallbackInfo ci, double amount, double mouseX, double mouseY, boolean handled) {
 		mouseScrolled_eventUsed = handled;
 		if (handled) {
@@ -119,13 +126,23 @@ public class MixinMouse implements IMouse {
 		}
 	}
 
-	@Inject(method = "onMouseScroll", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+	@Inject(
+		method = "onMouseScroll",
+		at = @At(
+			value = "FIELD",
+			target = "Lnet/minecraft/client/MinecraftClient;currentScreen:Lnet/minecraft/client/gui/screen/Screen;",
+			ordinal = 0),
+		locals = LocalCapture.CAPTURE_FAILHARD,
+		cancellable = true)
 	private void onMouseScroll(long window, double rawX, double rawY, CallbackInfo callbackInfo, double deltaY) {
 		InputUtil.Key keyCode = KeyBindingUtils.getKeyFromScroll(deltaY);
 
 		// check if we have scroll input for the options screen
-		if (client.currentScreen instanceof KeybindsScreen) {
-			KeyBinding focusedBinding = ((KeybindsScreen) client.currentScreen).selectedKeyBinding;
+		Screen currentScreen = client.currentScreen;
+		if (currentScreen != null && KeybindsScreenVersionHelper.ACTUAL_KEYBINDS_SCREEN_CLASS.isAssignableFrom(currentScreen.getClass())) {
+			IKeybindsScreen screen = (IKeybindsScreen) currentScreen;
+
+			KeyBinding focusedBinding = screen.getSelectedKeyBinding();
 			if (focusedBinding != null) {
 				if (!focusedBinding.isUnbound()) {
 					KeyModifiers keyModifiers = ((IKeyBinding) focusedBinding).amecs$getKeyModifiers();
@@ -133,7 +150,7 @@ public class MixinMouse implements IMouse {
 				}
 				client.options.setKeyCode(focusedBinding, keyCode);
 				KeyBinding.updateKeysByCode();
-				((KeybindsScreen) client.currentScreen).selectedKeyBinding = null;
+				screen.setSelectedKeyBinding(null);
 				// if we do we cancel the method because we do not want the current screen to get the scroll event
 				callbackInfo.cancel();
 				return;

@@ -5,15 +5,13 @@
 	"plugin": "de.siphalor.amecs.impl.mixin.AmecsAPIMixinConfig",
 	"mixins": [],
 	"client": [
-		"MixinKeybindsScreen",
 		"MixinGameOptions",
 		"MixinInputUtilType",
 		"MixinKeyBinding",
 		"MixinKeyBindingEntry",
 		"MixinKeyboard",
 		"MixinMinecraftClient",
-		"MixinMouse",
-		"MixinNMUKKeyBindingHelper"
+		"MixinMouse"
 	],
 	"server": [],
 	"injectors": {

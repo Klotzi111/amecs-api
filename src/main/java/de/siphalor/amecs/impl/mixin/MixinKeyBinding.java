@@ -14,18 +14,14 @@ import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.KeyBindingManager;
 import de.siphalor.amecs.impl.ModifierPrefixTextProvider;
-import de.siphalor.amecs.impl.NOPMap;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+import de.siphalor.amecs.impl.util.NOPMap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 
-@SuppressWarnings("WeakerAccess")
-@Environment(EnvType.CLIENT)
 @Mixin(KeyBinding.class)
 public abstract class MixinKeyBinding implements IKeyBinding {
 	@Shadow
@@ -82,6 +78,7 @@ public abstract class MixinKeyBinding implements IKeyBinding {
 		KeyBindingManager.register((KeyBinding) (Object) this);
 	}
 
+	@SuppressWarnings("resource")
 	@Inject(method = "getBoundKeyLocalizedText", at = @At("TAIL"), cancellable = true)
 	public void getLocalizedName(CallbackInfoReturnable<Text> callbackInfoReturnable) {
 		Text name = boundKey.getLocalizedText();

@@ -1,4 +1,4 @@
-package de.siphalor.amecs.impl;
+package de.siphalor.amecs.impl.util;
 
 import java.io.Serializable;
 import java.util.*;
@@ -11,6 +11,9 @@ import net.fabricmc.api.Environment;
 
 /**
  * Similar to Collections.EmptyMap
+ *
+ * @param <K> Key
+ * @param <V> Value
  *
  * @serial include
  */
@@ -82,7 +85,6 @@ public class NOPMap<K, V> implements Map<K, V>, Serializable {
 
 	// Override default methods in Map
 	@Override
-	@SuppressWarnings("unchecked")
 	public V getOrDefault(Object k, V defaultValue) {
 		return defaultValue;
 	}

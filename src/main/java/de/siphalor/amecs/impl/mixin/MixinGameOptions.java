@@ -15,14 +15,10 @@ import de.siphalor.amecs.api.KeyBindingUtils;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.AmecsAPI;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 
-@SuppressWarnings("WeakerAccess")
-@Environment(EnvType.CLIENT)
 @Mixin(GameOptions.class)
 public class MixinGameOptions {
 	@Unique
@@ -48,6 +44,7 @@ public class MixinGameOptions {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	@Inject(method = "load", at = @At("RETURN"))
 	public void load(CallbackInfo callbackInfo) {
 		if (amecsOptionsFile == null) {

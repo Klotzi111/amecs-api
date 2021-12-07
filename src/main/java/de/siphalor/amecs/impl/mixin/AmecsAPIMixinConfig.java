@@ -1,5 +1,7 @@
 package de.siphalor.amecs.impl.mixin;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +14,7 @@ import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import de.siphalor.amecs.impl.version.MinecraftVersionHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -19,19 +22,56 @@ import net.fabricmc.loader.api.MappingResolver;
 
 @Environment(EnvType.CLIENT)
 public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
-	private final String MOUSE_CLASS_INTERMEDIARY = "net.minecraft.class_312";
-	private final String SCREEN_CLASS_INTERMEDIARY = "net.minecraft.class_437";
-	private final String ELEMENT_CLASS_INTERMEDIARY = "net.minecraft.class_364";
+
+	public static final String MIXIN_VERSIONED_PACKAGE = "versioned";
+
+	public static String prependMixinPackage(String className) {
+		return MIXIN_VERSIONED_PACKAGE + "." + className;
+	}
+
+	public static List<String> prependMixinPackages(List<String> classNames) {
+		List<String> ret = new ArrayList<>(classNames.size());
+		for (String className : classNames) {
+			ret.add(prependMixinPackage(className));
+		}
+		return ret;
+	}
+
+	private List<String> additionalMixinClasses = null;
+
+	private static final String MOUSE_CLASS_INTERMEDIARY = "net.minecraft.class_312";
+	private static final String SCREEN_CLASS_INTERMEDIARY = "net.minecraft.class_437";
+	private static final String ELEMENT_CLASS_INTERMEDIARY = "net.minecraft.class_364";
 	private final MappingResolver mappingResolver = FabricLoader.getInstance().getMappingResolver();
 	private String mouseClassRemapped;
 	private String screenClassRemapped;
 	private String screenMouseScrolledRemapped;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onLoad(String mixinPackage) {
 		mouseClassRemapped = mappingResolver.mapClassName("intermediary", MOUSE_CLASS_INTERMEDIARY);
 		screenClassRemapped = mappingResolver.mapClassName("intermediary", SCREEN_CLASS_INTERMEDIARY).replace('.', '/');
 		screenMouseScrolledRemapped = mappingResolver.mapMethodName("intermediary", ELEMENT_CLASS_INTERMEDIARY, "method_25401", "(DDD)Z");
+
+		// versioned mixins
+
+		// TODO: add a json config file where for each mixinClassName a modID requirement can be made. Like in the fabric.mod.json#depends.
+		// for now doing it in here
+
+		// the order of the if statements is important. The highest version must be checked first
+		// we need to use the deprecated compareTo method because older minecraft versions do not support the new/non deprecated way
+		if (MinecraftVersionHelper.SEMANTIC_MINECRAFT_VERSION.compareTo(MinecraftVersionHelper.V1_18) >= 0) {
+			additionalMixinClasses = Arrays.asList("MixinKeybindsScreen");
+		} else if (MinecraftVersionHelper.SEMANTIC_MINECRAFT_VERSION.compareTo(MinecraftVersionHelper.V1_17) >= 0) {
+			additionalMixinClasses = Arrays.asList("MixinControlsOptionsScreen");
+		}
+
+		additionalMixinClasses = prependMixinPackages(additionalMixinClasses);
+
+		if (FabricLoader.getInstance().isModLoaded("nmuk")) {
+			additionalMixinClasses.add("MixinNMUKKeyBindingHelper");
+		}
 	}
 
 	@Override
@@ -41,9 +81,6 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 
 	@Override
 	public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-		if (mixinClassName.endsWith("MixinNMUKKeyBindingHelper")) {
-			return FabricLoader.getInstance().isModLoaded("nmuk");
-		}
 		return true;
 	}
 
@@ -54,7 +91,7 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 
 	@Override
 	public List<String> getMixins() {
-		return null;
+		return additionalMixinClasses == null ? null : (additionalMixinClasses.isEmpty() ? null : additionalMixinClasses);
 	}
 
 	@Override
@@ -66,9 +103,8 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 				if (onMouseScrollRemapped.equals(method.name)) {
 					targetClass.methods.remove(method);
 					method.accept(new OnMouseScrollTransformer(
-							targetClass.visitMethod(method.access, method.name, method.desc, method.signature, method.exceptions.toArray(new String[0])),
-							method.access, method.name, method.desc
-					));
+						targetClass.visitMethod(method.access, method.name, method.desc, method.signature, method.exceptions.toArray(new String[0])),
+						method.access, method.name, method.desc));
 					break;
 				}
 			}

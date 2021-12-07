@@ -9,6 +9,7 @@ import de.siphalor.amecs.api.KeyBindingUtils;
 import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
+import de.siphalor.amecs.impl.util.NMUKProxy;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
