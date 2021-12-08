@@ -4,14 +4,17 @@ import org.jetbrains.annotations.ApiStatus;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.screen.option.ControlsListWidget;
 import net.minecraft.client.option.KeyBinding;
 
 @Environment(EnvType.CLIENT)
 @ApiStatus.Internal
 public interface IKeybindsScreen {
-	void setSelectedKeyBinding(KeyBinding selectedKeyBinding);
+	KeyBinding amecs$getSelectedKeyBinding();
 
-	void setLastKeyCodeUpdateTime(long lastKeyCodeUpdateTime);
+	void amecs$setSelectedKeyBinding(KeyBinding selectedKeyBinding);
 
-	KeyBinding getSelectedKeyBinding();
+	void amecs$setLastKeyCodeUpdateTime(long lastKeyCodeUpdateTime);
+
+	ControlsListWidget amecs$getControlsList();
 }

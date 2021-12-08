@@ -54,8 +54,8 @@ public class MixinKeyboard {
 			if (currentScreen != null && KeybindsScreenVersionHelper.ACTUAL_KEYBINDS_SCREEN_CLASS.isAssignableFrom(currentScreen.getClass())) {
 				IKeybindsScreen screen = (IKeybindsScreen) currentScreen;
 
-				screen.setSelectedKeyBinding(null);
-				screen.setLastKeyCodeUpdateTime(Util.getMeasuringTimeMs());
+				screen.amecs$setSelectedKeyBinding(null);
+				screen.amecs$setLastKeyCodeUpdateTime(Util.getMeasuringTimeMs());
 			}
 		}
 

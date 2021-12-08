@@ -142,7 +142,7 @@ public class MixinMouse implements IMouse {
 		if (currentScreen != null && KeybindsScreenVersionHelper.ACTUAL_KEYBINDS_SCREEN_CLASS.isAssignableFrom(currentScreen.getClass())) {
 			IKeybindsScreen screen = (IKeybindsScreen) currentScreen;
 
-			KeyBinding focusedBinding = screen.getSelectedKeyBinding();
+			KeyBinding focusedBinding = screen.amecs$getSelectedKeyBinding();
 			if (focusedBinding != null) {
 				if (!focusedBinding.isUnbound()) {
 					KeyModifiers keyModifiers = ((IKeyBinding) focusedBinding).amecs$getKeyModifiers();
@@ -150,7 +150,7 @@ public class MixinMouse implements IMouse {
 				}
 				client.options.setKeyCode(focusedBinding, keyCode);
 				KeyBinding.updateKeysByCode();
-				screen.setSelectedKeyBinding(null);
+				screen.amecs$setSelectedKeyBinding(null);
 				// if we do we cancel the method because we do not want the current screen to get the scroll event
 				callbackInfo.cancel();
 				return;

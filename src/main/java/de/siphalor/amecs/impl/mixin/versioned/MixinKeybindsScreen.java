@@ -1,5 +1,6 @@
 package de.siphalor.amecs.impl.mixin.versioned;
 
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -9,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import de.siphalor.amecs.impl.duck.IKeybindsScreen;
 import de.siphalor.amecs.impl.mixinimpl.MixinKeybindsScreenImpl;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.option.ControlsListWidget;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.gui.screen.option.KeybindsScreen;
 import net.minecraft.client.option.GameOptions;
@@ -24,24 +26,33 @@ public abstract class MixinKeybindsScreen extends GameOptionsScreen implements I
 	}
 
 	@Shadow
+	@Nullable
 	public KeyBinding selectedKeyBinding;
 
 	@Shadow
 	public long lastKeyCodeUpdateTime;
 
+	@Shadow
+	private ControlsListWidget controlsList;
+
 	@Override
-	public void setSelectedKeyBinding(KeyBinding selectedKeyBinding) {
+	public void amecs$setSelectedKeyBinding(KeyBinding selectedKeyBinding) {
 		this.selectedKeyBinding = selectedKeyBinding;
 	}
 
 	@Override
-	public KeyBinding getSelectedKeyBinding() {
+	public KeyBinding amecs$getSelectedKeyBinding() {
 		return selectedKeyBinding;
 	}
 
 	@Override
-	public void setLastKeyCodeUpdateTime(long lastKeyCodeUpdateTime) {
+	public void amecs$setLastKeyCodeUpdateTime(long lastKeyCodeUpdateTime) {
 		this.lastKeyCodeUpdateTime = lastKeyCodeUpdateTime;
+	}
+
+	@Override
+	public ControlsListWidget amecs$getControlsList() {
+		return controlsList;
 	}
 
 	@Inject(

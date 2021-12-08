@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import de.siphalor.amecs.impl.duck.IKeybindsScreen;
 import de.siphalor.amecs.impl.mixinimpl.MixinKeybindsScreenImpl;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.option.ControlsListWidget;
 import net.minecraft.client.gui.screen.option.ControlsOptionsScreen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.option.GameOptions;
@@ -29,19 +30,27 @@ public abstract class MixinControlsOptionsScreen extends GameOptionsScreen imple
 	@Shadow
 	public long time;
 
+	@Shadow
+	private ControlsListWidget keyBindingListWidget;
+
 	@Override
-	public void setSelectedKeyBinding(KeyBinding selectedKeyBinding) {
+	public void amecs$setSelectedKeyBinding(KeyBinding selectedKeyBinding) {
 		focusedBinding = selectedKeyBinding;
 	}
 
 	@Override
-	public KeyBinding getSelectedKeyBinding() {
+	public KeyBinding amecs$getSelectedKeyBinding() {
 		return focusedBinding;
 	}
 
 	@Override
-	public void setLastKeyCodeUpdateTime(long lastKeyCodeUpdateTime) {
+	public void amecs$setLastKeyCodeUpdateTime(long lastKeyCodeUpdateTime) {
 		time = lastKeyCodeUpdateTime;
+	}
+
+	@Override
+	public ControlsListWidget amecs$getControlsList() {
+		return keyBindingListWidget;
 	}
 
 	@Inject(
