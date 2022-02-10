@@ -48,17 +48,25 @@ public class MixinKeyboard {
 			target = "Lnet/minecraft/client/Keyboard;debugCrashStartTime:J",
 			ordinal = 0))
 	private void onKey(long window, int int_1, int int_2, int int_3, int int_4, CallbackInfo callbackInfo) {
-		// Key released
-		if (int_3 == 0) {
-			Screen currentScreen = MinecraftClient.getInstance().currentScreen;
-			if (currentScreen != null && KeybindsScreenVersionHelper.ACTUAL_KEYBINDS_SCREEN_CLASS.isAssignableFrom(currentScreen.getClass())) {
+		Screen currentScreen = MinecraftClient.getInstance().currentScreen;
+		if (currentScreen != null && KeybindsScreenVersionHelper.ACTUAL_KEYBINDS_SCREEN_CLASS.isAssignableFrom(currentScreen.getClass())) {
+			// if it is the keyBinding screen
+
+			if (int_3 == 0) {
+				// Key released
 				IKeybindsScreen screen = (IKeybindsScreen) currentScreen;
 
 				screen.amecs$setSelectedKeyBinding(null);
 				screen.amecs$setLastKeyCodeUpdateTime(Util.getMeasuringTimeMs());
 			}
+
+			// do not call keyBinding keyModifier update here
+			// it is done after the key is entry finish
 		}
 
-		AmecsAPI.CURRENT_MODIFIERS.set(KeyModifier.fromKeyCode(InputUtil.fromKeyCode(int_1, int_2).getCode()), int_3 != 0);
+		int keyCode = InputUtil.fromKeyCode(int_1, int_2).getCode();
+		boolean pressed = int_3 != 0;
+		AmecsAPI.CURRENT_MODIFIERS.set(KeyModifier.fromKeyCode(keyCode), pressed);
+
 	}
 }

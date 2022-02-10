@@ -7,10 +7,17 @@ import org.apache.logging.log4j.Level;
 import de.siphalor.amecs.impl.AmecsAPI;
 import net.fabricmc.loader.api.*;
 
+// this file is the same as in amecs-api. But we need it here too because NMUK is standalone
 public class MinecraftVersionHelper {
 
 	public static SemanticVersion V1_18;
+	public static boolean IS_AT_LEAST_V1_18;
 	public static SemanticVersion V1_17;
+	public static boolean IS_AT_LEAST_V1_17;
+	public static SemanticVersion V1_16;
+	public static boolean IS_AT_LEAST_V1_16;
+	public static SemanticVersion V1_15;
+	public static boolean IS_AT_LEAST_V1_15;
 
 	public static Version MINECRAFT_VERSION = null;
 	public static SemanticVersion SEMANTIC_MINECRAFT_VERSION = null;
@@ -19,10 +26,22 @@ public class MinecraftVersionHelper {
 		getMinecraftVersion();
 
 		V1_18 = parseSemanticVersion("1.18");
+		IS_AT_LEAST_V1_18 = isMCVersionAtLeast(V1_18);
 		V1_17 = parseSemanticVersion("1.17");
+		IS_AT_LEAST_V1_17 = isMCVersionAtLeast(V1_17);
+		V1_16 = parseSemanticVersion("1.16");
+		IS_AT_LEAST_V1_16 = isMCVersionAtLeast(V1_16);
+		V1_15 = parseSemanticVersion("1.15");
+		IS_AT_LEAST_V1_15 = isMCVersionAtLeast(V1_15);
 	}
 
-	private static SemanticVersion parseSemanticVersion(String version) {
+	// we need to use the deprecated compareTo method because older minecraft versions do not support the new/non deprecated way
+	@SuppressWarnings("deprecation")
+	public static boolean isMCVersionAtLeast(SemanticVersion versionToBeAtLeast) {
+		return SEMANTIC_MINECRAFT_VERSION.compareTo(versionToBeAtLeast) >= 0;
+	}
+
+	public static SemanticVersion parseSemanticVersion(String version) {
 		try {
 			return SemanticVersion.parse(version);
 		} catch (VersionParsingException e) {
@@ -40,7 +59,7 @@ public class MinecraftVersionHelper {
 		if (MINECRAFT_VERSION instanceof SemanticVersion) {
 			SEMANTIC_MINECRAFT_VERSION = (SemanticVersion) MINECRAFT_VERSION;
 		} else {
-			// this line will cause errors. Because it will trigger the class load of Amecs but that loads other classes because of its static fields.
+			// this line will cause errors. Because it will trigger the class load of AmecsAPI but that loads other classes because of its static fields.
 			// And these classes load too early because of the mixins
 			AmecsAPI.log(Level.WARN, "Minecraft version is no SemVer. This will cause problems!");
 		}

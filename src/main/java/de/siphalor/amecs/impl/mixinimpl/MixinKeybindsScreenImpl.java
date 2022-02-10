@@ -21,7 +21,7 @@ public class MixinKeybindsScreenImpl {
 		((IKeyBinding) selectedKeyBinding).amecs$getKeyModifiers().unset();
 	}
 
-	public static void onKeyPressed(int keyCode, int scanCode, KeyBinding selectedKeyBinding, long lastKeyCodeUpdateTime, GameOptions gameOptions) {
+	public static void onKeyPressed(int keyCode, int scanCode, KeyBinding selectedKeyBinding, GameOptions gameOptions) {
 		if (selectedKeyBinding.isUnbound()) {
 			gameOptions.setKeyCode(selectedKeyBinding, InputUtil.fromKeyCode(keyCode, scanCode));
 		} else {

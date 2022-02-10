@@ -1,4 +1,4 @@
-package de.siphalor.amecs.impl.mixin;
+package de.siphalor.amecs.impl.mixin.nmuk;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

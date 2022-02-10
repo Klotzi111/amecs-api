@@ -3,7 +3,6 @@ package de.siphalor.amecs.impl.version;
 import net.minecraft.client.gui.screen.option.ControlsOptionsScreen;
 import net.minecraft.client.gui.screen.option.KeybindsScreen;
 
-@SuppressWarnings("deprecation")
 public class KeybindsScreenVersionHelper {
 
 	public static final Class<?> ACTUAL_KEYBINDS_SCREEN_CLASS;
@@ -11,7 +10,7 @@ public class KeybindsScreenVersionHelper {
 	public static final Class<?> KeybindsScreen_class;
 
 	static {
-		if (MinecraftVersionHelper.SEMANTIC_MINECRAFT_VERSION.compareTo(MinecraftVersionHelper.V1_18) >= 0) {
+		if (MinecraftVersionHelper.IS_AT_LEAST_V1_18) {
 			KeybindsScreen_class = KeybindsScreen.class;
 			ACTUAL_KEYBINDS_SCREEN_CLASS = KeybindsScreen_class;
 		} else {

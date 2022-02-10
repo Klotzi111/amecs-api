@@ -16,7 +16,6 @@ import net.minecraft.client.util.InputUtil;
 /**
  * Defines modifiers for a key binding
  */
-@SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
 @Environment(EnvType.CLIENT)
 public class KeyModifiers {
 	/**
@@ -100,6 +99,7 @@ public class KeyModifiers {
 	 * Sets the raw value
 	 *
 	 * @param value the value with flags set
+	 * @return this
 	 */
 	@ApiStatus.Internal
 	public KeyModifiers setValue(boolean[] value) {
@@ -127,6 +127,8 @@ public class KeyModifiers {
 	 * FOR INTERNAL USE ONLY
 	 * <p>
 	 * copies the modifiers of the other KeyModifiers object into this
+	 *
+	 * @param other the modifiers to copy
 	 */
 	@ApiStatus.Internal
 	public void copyModifiers(KeyModifiers other) {
@@ -137,6 +139,7 @@ public class KeyModifiers {
 	 * Sets the alt flag
 	 *
 	 * @param value whether the alt flag should be activated or not
+	 * @return this
 	 */
 	public KeyModifiers setAlt(boolean value) {
 		set(KeyModifier.ALT, value);
@@ -156,6 +159,7 @@ public class KeyModifiers {
 	 * Sets the control flag
 	 *
 	 * @param value whether the control flag should be activated or not
+	 * @return this
 	 */
 	public KeyModifiers setControl(boolean value) {
 		set(KeyModifier.CONTROL, value);
@@ -175,6 +179,7 @@ public class KeyModifiers {
 	 * Sets the shift flag
 	 *
 	 * @param value whether the shift flag should be activated or not
+	 * @return this
 	 */
 	public KeyModifiers setShift(boolean value) {
 		set(KeyModifier.SHIFT, value);
@@ -190,12 +195,27 @@ public class KeyModifiers {
 		return get(KeyModifier.SHIFT);
 	}
 
+	/**
+	 * Sets the given {@code keyModifier} flag to the given {@code value}
+	 *
+	 * @param keyModifier
+	 *
+	 * @param value whether the flag should be activated or not
+	 */
 	public void set(KeyModifier keyModifier, boolean value) {
 		if (keyModifier != KeyModifier.NONE) {
 			this.value[keyModifier.id] = value;
 		}
 	}
 
+	/**
+	 * Gets the given value for the given {@code keyModifier} flag
+	 *
+	 * @param keyModifier
+	 *
+	 * @param value whether the flag should be activated or not
+	 * @return flag value
+	 */
 	public boolean get(KeyModifier keyModifier) {
 		if (keyModifier == KeyModifier.NONE) {
 			return true;
@@ -266,6 +286,8 @@ public class KeyModifiers {
 
 	/**
 	 * FOR INTERNAL USE ONLY
+	 *
+	 * @param value the serialized String value
 	 *
 	 * @return the deserialized modifier array
 	 */

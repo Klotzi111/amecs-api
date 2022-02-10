@@ -1,4 +1,4 @@
-package de.siphalor.amecs.impl.util;
+package de.siphalor.amecs.impl.compat.nmuk;
 
 import de.siphalor.nmuk.api.NMUKAlternatives;
 import net.fabricmc.api.EnvType;

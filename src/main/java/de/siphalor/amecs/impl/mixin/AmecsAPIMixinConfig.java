@@ -1,7 +1,7 @@
 package de.siphalor.amecs.impl.mixin;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +14,8 @@ import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
+import de.siphalor.amecs.impl.compat.controlling.CompatibilityControlling;
+import de.siphalor.amecs.impl.compat.nmuk.CompatibilityNMUK;
 import de.siphalor.amecs.impl.version.MinecraftVersionHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -25,19 +27,33 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 
 	public static final String MIXIN_VERSIONED_PACKAGE = "versioned";
 
-	public static String prependMixinPackage(String className) {
-		return MIXIN_VERSIONED_PACKAGE + "." + className;
+	public static String prependMixinPackage(String className, String prefix) {
+		if (prefix == null) {
+			return className;
+		}
+		return prefix + "." + className;
 	}
 
-	public static List<String> prependMixinPackages(List<String> classNames) {
+	public static List<String> prependMixinPackages(List<String> classNames, String prefix) {
 		List<String> ret = new ArrayList<>(classNames.size());
 		for (String className : classNames) {
-			ret.add(prependMixinPackage(className));
+			ret.add(prependMixinPackage(className, prefix));
 		}
 		return ret;
 	}
 
-	private List<String> additionalMixinClasses = null;
+	private List<String> finalAdditionalMixinClasses = new ArrayList<>();
+
+	private List<String> additionalMixinClasses = new ArrayList<>();
+
+	private void addMixins(String... mixinNames) {
+		Collections.addAll(additionalMixinClasses, mixinNames);
+	}
+
+	private void pushMixinsToFinal() {
+		finalAdditionalMixinClasses.addAll(additionalMixinClasses);
+		additionalMixinClasses.clear();
+	}
 
 	private static final String MOUSE_CLASS_INTERMEDIARY = "net.minecraft.class_312";
 	private static final String SCREEN_CLASS_INTERMEDIARY = "net.minecraft.class_437";
@@ -47,7 +63,6 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 	private String screenClassRemapped;
 	private String screenMouseScrolledRemapped;
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onLoad(String mixinPackage) {
 		mouseClassRemapped = mappingResolver.mapClassName("intermediary", MOUSE_CLASS_INTERMEDIARY);
@@ -60,18 +75,28 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 		// for now doing it in here
 
 		// the order of the if statements is important. The highest version must be checked first
-		// we need to use the deprecated compareTo method because older minecraft versions do not support the new/non deprecated way
-		if (MinecraftVersionHelper.SEMANTIC_MINECRAFT_VERSION.compareTo(MinecraftVersionHelper.V1_18) >= 0) {
-			additionalMixinClasses = Arrays.asList("MixinKeybindsScreen");
+		if (MinecraftVersionHelper.IS_AT_LEAST_V1_18) {
+			addMixins("MixinKeybindsScreen");
 		} else {
 			// Minecraft 1.17 and below
-			additionalMixinClasses = Arrays.asList("MixinControlsOptionsScreen");
+			addMixins("MixinControlsOptionsScreen");
 		}
 
-		additionalMixinClasses = prependMixinPackages(additionalMixinClasses);
+		additionalMixinClasses = prependMixinPackages(additionalMixinClasses, MIXIN_VERSIONED_PACKAGE);
+		pushMixinsToFinal();
 
-		if (FabricLoader.getInstance().isModLoaded("nmuk")) {
-			additionalMixinClasses.add("MixinNMUKKeyBindingHelper");
+		if (CompatibilityControlling.MOD_PRESENT) {
+			addMixins("MixinKeyEntry", "MixinNewKeyBindsScreen");
+
+			additionalMixinClasses = prependMixinPackages(additionalMixinClasses, CompatibilityControlling.MOD_NAME);
+			pushMixinsToFinal();
+		}
+
+		if (CompatibilityNMUK.MOD_PRESENT) {
+			addMixins("MixinNMUKKeyBindingHelper");
+
+			additionalMixinClasses = prependMixinPackages(additionalMixinClasses, CompatibilityNMUK.MOD_NAME);
+			pushMixinsToFinal();
 		}
 	}
 
@@ -92,7 +117,7 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 
 	@Override
 	public List<String> getMixins() {
-		return additionalMixinClasses == null ? null : (additionalMixinClasses.isEmpty() ? null : additionalMixinClasses);
+		return finalAdditionalMixinClasses == null ? null : (finalAdditionalMixinClasses.isEmpty() ? null : finalAdditionalMixinClasses);
 	}
 
 	@Override

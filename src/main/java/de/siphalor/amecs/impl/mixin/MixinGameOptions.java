@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import de.siphalor.amecs.api.KeyBindingUtils;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.AmecsAPI;
+import de.siphalor.amecs.impl.KeyBindingManager;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.GameOptions;
@@ -82,6 +83,7 @@ public class MixinGameOptions {
 						continue;
 					}
 					((IKeyBinding) keyBinding).amecs$getKeyModifiers().copyModifiers(modifiers);
+					KeyBindingManager.updateKeyBindingWithKeyModifiers(keyBinding);
 				} catch (Throwable e) {
 					AmecsAPI.log(Level.ERROR, "Invalid line in Amecs API options file: " + line);
 				}
