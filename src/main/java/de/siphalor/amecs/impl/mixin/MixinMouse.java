@@ -105,18 +105,11 @@ public class MixinMouse implements IMouse {
 		}
 	}
 
-	@Inject(
-		method = "onMouseScroll",
-		at = @At(
-			value = "INVOKE_ASSIGN",
-			ordinal = 0,
-			shift = At.Shift.AFTER,
-			target = "Lnet/minecraft/client/gui/screen/Screen;mouseScrolled(DDD)Z"),
-		locals = LocalCapture.CAPTURE_FAILSOFT)
-	private void mouseScrolled_onMouseScrolled(long window, double d, double e, CallbackInfo ci, double amount, double mouseX, double mouseY, boolean handled) {
+	@SuppressWarnings("unused")
+	private boolean amecs$onMouseScrolledScreen(boolean handled) {
 		mouseScrolled_eventUsed = handled;
 		if (handled) {
-			return;
+			return true;
 		}
 
 		if (client.currentScreen.passEvents) {
@@ -124,6 +117,7 @@ public class MixinMouse implements IMouse {
 				onScrollReceived(KeyBindingUtils.getLastScrollAmount(), true, 0);
 			}
 		}
+		return false;
 	}
 
 	@Inject(
