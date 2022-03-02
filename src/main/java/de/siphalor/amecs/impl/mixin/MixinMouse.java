@@ -17,6 +17,7 @@ import de.siphalor.amecs.impl.KeyBindingManager;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
 import de.siphalor.amecs.impl.duck.IKeybindsScreen;
 import de.siphalor.amecs.impl.duck.IMouse;
+import de.siphalor.amecs.impl.mixinimpl.MixinMouseImpl;
 import de.siphalor.amecs.impl.version.KeybindsScreenVersionHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
@@ -42,6 +43,16 @@ public class MixinMouse implements IMouse {
 		return mouseScrolled_eventUsed;
 	}
 
+	@Override
+	public double amecs$getEventDeltaWheel() {
+		return eventDeltaWheel;
+	}
+
+	@Override
+	public void amecs$setEventDeltaWheel(double eventDeltaWheel) {
+		this.eventDeltaWheel = eventDeltaWheel;
+	}
+
 	@Inject(
 		method = "onMouseButton",
 		at = @At(
@@ -55,56 +66,6 @@ public class MixinMouse implements IMouse {
 		}
 	}
 
-	// If this method changes make sure to also change the corresponding code in KTIG
-	private void onScrollReceived(double deltaY, boolean manualDeltaWheel, float g) {
-		int scrollCount;
-		if (manualDeltaWheel) {
-			// from minecraft but patched
-			// this code might be wrong when the vanilla mc code changes
-			if (eventDeltaWheel != 0.0D && Math.signum(deltaY) != Math.signum(eventDeltaWheel)) {
-				eventDeltaWheel = 0.0D;
-			}
-
-			eventDeltaWheel += deltaY;
-			scrollCount = (int) eventDeltaWheel;
-			if (scrollCount == 0) {
-				return;
-			}
-
-			eventDeltaWheel -= scrollCount;
-			// -from minecraft
-		} else {
-			scrollCount = (int) g;
-		}
-
-		InputUtil.Key keyCode = KeyBindingUtils.getKeyFromScroll(scrollCount);
-
-		KeyBinding.setKeyPressed(keyCode, true);
-		scrollCount = Math.abs(scrollCount);
-
-		while (scrollCount > 0) {
-			KeyBinding.onKeyPressed(keyCode);
-			scrollCount--;
-		}
-		KeyBinding.setKeyPressed(keyCode, false);
-
-		// default minecraft scroll logic is in HotbarScrollKeyBinding in amecs
-	}
-
-	@Inject(
-		method = "onMouseScroll",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/client/network/ClientPlayerEntity;isSpectator()Z",
-			ordinal = 0),
-		locals = LocalCapture.CAPTURE_FAILHARD)
-	private void isSpectator_onMouseScroll(long window, double rawX, double rawY, CallbackInfo callbackInfo, double deltaY, float g) {
-		// we are here in the else branch of "this.client.currentScreen != null" meaning currentScreen == null
-		if (AmecsAPI.TRIGGER_KEYBINDING_ON_SCROLL) {
-			onScrollReceived(KeyBindingUtils.getLastScrollAmount(), false, g);
-		}
-	}
-
 	@SuppressWarnings("unused")
 	private boolean amecs$onMouseScrolledScreen(boolean handled) {
 		mouseScrolled_eventUsed = handled;
@@ -114,7 +75,7 @@ public class MixinMouse implements IMouse {
 
 		if (client.currentScreen.passEvents) {
 			if (AmecsAPI.TRIGGER_KEYBINDING_ON_SCROLL) {
-				onScrollReceived(KeyBindingUtils.getLastScrollAmount(), true, 0);
+				eventDeltaWheel = MixinMouseImpl.onScrollReceived(eventDeltaWheel, KeyBindingUtils.getLastScrollAmount(), true, 0);
 			}
 		}
 		return false;

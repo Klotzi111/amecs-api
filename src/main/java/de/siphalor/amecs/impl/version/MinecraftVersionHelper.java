@@ -10,6 +10,8 @@ import net.fabricmc.loader.api.*;
 // this file is the same as in amecs-api. But we need it here too because NMUK is standalone
 public class MinecraftVersionHelper {
 
+	public static SemanticVersion V1_18_2;
+	public static boolean IS_AT_LEAST_V1_18_2;
 	public static SemanticVersion V1_18;
 	public static boolean IS_AT_LEAST_V1_18;
 	public static SemanticVersion V1_17;
@@ -25,6 +27,8 @@ public class MinecraftVersionHelper {
 	static {
 		getMinecraftVersion();
 
+		V1_18_2 = parseSemanticVersion("1.18.2");
+		IS_AT_LEAST_V1_18_2 = isMCVersionAtLeast(V1_18_2);
 		V1_18 = parseSemanticVersion("1.18");
 		IS_AT_LEAST_V1_18 = isMCVersionAtLeast(V1_18);
 		V1_17 = parseSemanticVersion("1.17");

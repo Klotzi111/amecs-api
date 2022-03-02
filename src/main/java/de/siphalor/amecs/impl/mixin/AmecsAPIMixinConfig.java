@@ -85,6 +85,13 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 			addMixins("MixinControlsOptionsScreen");
 		}
 
+		// Mouse changes
+		if (MinecraftVersionHelper.IS_AT_LEAST_V1_18_2) {
+			addMixins("MixinMouse_1_18_2");
+		} else {
+			addMixins("MixinMouse_1_14");
+		}
+
 		additionalMixinClasses = prependMixinPackages(additionalMixinClasses, MIXIN_VERSIONED_PACKAGE);
 		pushMixinsToFinal();
 

@@ -10,4 +10,8 @@ import net.fabricmc.api.Environment;
 public interface IMouse {
 	// this is used by KTIG
 	boolean amecs$getMouseScrolledEventUsed();
+
+	double amecs$getEventDeltaWheel();
+
+	void amecs$setEventDeltaWheel(double eventDeltaWheel);
 }
