@@ -75,7 +75,7 @@ public class MixinMouse implements IMouse {
 
 		if (client.currentScreen.passEvents) {
 			if (AmecsAPI.TRIGGER_KEYBINDING_ON_SCROLL) {
-				eventDeltaWheel = MixinMouseImpl.onScrollReceived(eventDeltaWheel, KeyBindingUtils.getLastScrollAmount(), true, 0);
+				MixinMouseImpl.onScrollReceived(this, KeyBindingUtils.getLastScrollAmount(), true, 0);
 			}
 		}
 		return false;

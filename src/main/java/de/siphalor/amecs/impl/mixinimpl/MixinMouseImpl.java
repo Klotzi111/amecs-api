@@ -1,6 +1,7 @@
 package de.siphalor.amecs.impl.mixinimpl;
 
 import de.siphalor.amecs.api.KeyBindingUtils;
+import de.siphalor.amecs.impl.duck.IMouse;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 
@@ -11,15 +12,15 @@ public class MixinMouseImpl {
 	 * <br>
 	 * If this method changes make sure to also change the corresponding code in KTIG
 	 *
-	 * @param eventDeltaWheel
+	 * @param _this
 	 * @param deltaY
 	 * @param manualDeltaWheel
 	 * @param g
-	 * @return the modified eventDeltaWheel
 	 */
-	public static double onScrollReceived(double eventDeltaWheel, double deltaY, boolean manualDeltaWheel, int g) {
+	public static void onScrollReceived(IMouse _this, double deltaY, boolean manualDeltaWheel, int g) {
 		int scrollCount;
 		if (manualDeltaWheel) {
+			double eventDeltaWheel = _this.amecs$getEventDeltaWheel();
 			// from minecraft but patched
 			// this code might be wrong when the vanilla mc code changes
 			if (eventDeltaWheel != 0.0D && Math.signum(deltaY) != Math.signum(eventDeltaWheel)) {
@@ -29,7 +30,8 @@ public class MixinMouseImpl {
 			eventDeltaWheel += deltaY;
 			scrollCount = (int) eventDeltaWheel;
 			if (scrollCount == 0) {
-				return eventDeltaWheel;
+				_this.amecs$setEventDeltaWheel(eventDeltaWheel);
+				return;
 			}
 
 			eventDeltaWheel -= scrollCount;
@@ -49,7 +51,6 @@ public class MixinMouseImpl {
 		}
 		KeyBinding.setKeyPressed(keyCode, false);
 
-		return eventDeltaWheel;
 		// default minecraft scroll logic is in HotbarScrollKeyBinding in amecs
 	}
 

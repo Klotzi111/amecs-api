@@ -26,7 +26,7 @@ public abstract class MixinMouse_1_18_2 implements IMouse {
 	private void isSpectator_onMouseScroll(long window, double rawX, double rawY, CallbackInfo callbackInfo, double deltaY, int g) {
 		// we are here in the else branch of "this.client.currentScreen != null" meaning currentScreen == null
 		if (AmecsAPI.TRIGGER_KEYBINDING_ON_SCROLL) {
-			amecs$setEventDeltaWheel(MixinMouseImpl.onScrollReceived(amecs$getEventDeltaWheel(), KeyBindingUtils.getLastScrollAmount(), false, g));
+			MixinMouseImpl.onScrollReceived(this, KeyBindingUtils.getLastScrollAmount(), false, g);
 		}
 	}
 
