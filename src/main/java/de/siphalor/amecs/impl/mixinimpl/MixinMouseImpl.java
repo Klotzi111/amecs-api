@@ -35,6 +35,7 @@ public class MixinMouseImpl {
 			}
 
 			eventDeltaWheel -= scrollCount;
+			_this.amecs$setEventDeltaWheel(eventDeltaWheel);
 			// -from minecraft
 		} else {
 			scrollCount = g;
