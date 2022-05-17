@@ -2,9 +2,12 @@ package de.siphalor.amecs.impl.mixinimpl;
 
 import de.siphalor.amecs.api.KeyBindingUtils;
 import de.siphalor.amecs.impl.duck.IMouse;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 
+@Environment(EnvType.CLIENT)
 public class MixinMouseImpl {
 
 	/**

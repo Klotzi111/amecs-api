@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.11-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -93,12 +93,12 @@ publishing {
 			artifactId = "${project.archives_base_name}-${project.target_minecraft_major_version}"
 
 			from components.java
+			java.withSourcesJar()
 		}
 	}
 
-	// select the repositories you want to publish to
 	repositories {
-		if (project.hasProperty("siphalorMavenPassword")) {
+		if (project.hasProperty("siphalorMavenUser")) {
 			maven {
 				name = "Siphalor"
 				url = "https://maven.siphalor.de/upload.php"

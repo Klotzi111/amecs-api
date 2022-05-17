@@ -3,10 +3,13 @@ package de.siphalor.amecs.impl.mixinimpl;
 import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 
+@Environment(EnvType.CLIENT)
 public class MixinKeybindsScreenImpl {
 
 	public static void onClicked(KeyBinding selectedKeyBinding) {

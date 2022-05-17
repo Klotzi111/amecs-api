@@ -2,9 +2,6 @@ package de.siphalor.amecs.impl.version;
 
 import java.util.Optional;
 
-import org.apache.logging.log4j.Level;
-
-import de.siphalor.amecs.impl.AmecsAPI;
 import net.fabricmc.loader.api.*;
 
 // this file is the same as in amecs-api. But we need it here too because NMUK is standalone
@@ -63,9 +60,7 @@ public class MinecraftVersionHelper {
 		if (MINECRAFT_VERSION instanceof SemanticVersion) {
 			SEMANTIC_MINECRAFT_VERSION = (SemanticVersion) MINECRAFT_VERSION;
 		} else {
-			// this line will cause errors. Because it will trigger the class load of AmecsAPI but that loads other classes because of its static fields.
-			// And these classes load too early because of the mixins
-			AmecsAPI.log(Level.WARN, "Minecraft version is no SemVer. This will cause problems!");
+			throw new IllegalStateException("Minecraft version is no SemVer!");
 		}
 	}
 

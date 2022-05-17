@@ -25,6 +25,7 @@
 		"amecsapi.mixins.json"
 	],
 	"custom": {
+		"modmenu:clientsideOnly": true,
 		"modmenu:api": true,
 		"modmenu": {
 			"badges": [
@@ -33,6 +34,10 @@
 		}
 	},
 	"depends": {
-		"fabricloader": ">=0.4.0"
+		"fabric": "*",
+		"fabricloader": ">=0.4.0",
+		"fabric-api-base": ">=0.1.2+de26dc4942",
+		"fabric-key-binding-api-v1": ">=1.0.2+4ea4772942",
+		"fabric-resource-loader-v0": ">=0.1.5+4ea4772942"
 	}
 }
