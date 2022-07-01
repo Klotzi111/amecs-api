@@ -1,15 +1,12 @@
 package de.siphalor.amecs.impl.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.impl.AmecsAPI;
-import de.siphalor.amecs.impl.KeyBindingManager;
 import de.siphalor.amecs.impl.duck.IKeybindsScreen;
 import de.siphalor.amecs.impl.version.KeybindsScreenVersionHelper;
 import net.minecraft.client.Keyboard;
@@ -20,25 +17,6 @@ import net.minecraft.util.Util;
 
 @Mixin(Keyboard.class)
 public class MixinKeyboard {
-
-	@Shadow
-	private boolean repeatEvents;
-
-	@Inject(
-		method = "onKey",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/screen/Screen;hasControlDown()Z",
-			ordinal = 1,
-			shift = Shift.BEFORE),
-		cancellable = true)
-	private void onKeyPriority(long window, int int_1, int int_2, int int_3, int int_4, CallbackInfo callbackInfo) {
-		if (int_3 == 1 || (int_3 == 2 && repeatEvents)) {
-			if (KeyBindingManager.onKeyPressedPriority(InputUtil.fromKeyCode(int_1, int_2))) {
-				callbackInfo.cancel();
-			}
-		}
-	}
 
 	@SuppressWarnings("resource")
 	@Inject(
@@ -67,6 +45,6 @@ public class MixinKeyboard {
 		int keyCode = InputUtil.fromKeyCode(int_1, int_2).getCode();
 		boolean pressed = int_3 != 0;
 		AmecsAPI.CURRENT_MODIFIERS.set(KeyModifier.fromKeyCode(keyCode), pressed);
-
 	}
+
 }

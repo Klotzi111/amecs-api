@@ -7,14 +7,16 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import de.siphalor.amecs.api.KeyBindingUtils;
 import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.api.PriorityKeyBinding;
 import de.siphalor.amecs.impl.compat.nmuk.CompatibilityNMUK;
 import de.siphalor.amecs.impl.compat.nmuk.NMUKProxy;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
+import de.siphalor.amecs.impl.mixin.KeyBindingAccessor;
 import de.siphalor.amecs.impl.util.IdentityHashStrategy;
+import de.siphalor.amecs.impl.version.KeyBindingVersionHelper;
+import de.siphalor.amecs.impl.version.MinecraftClientVersionHelper;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenCustomHashSet;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -204,11 +206,11 @@ public class KeyBindingManager {
 		KEYBINDINGS_BY_KEY.clear();
 		KEYBINDINGS_BY_KEY_PRIORITY.clear();
 		KEYBINDINGS_BY_KEYMODIFIER.clear();
-		KeyBindingUtils.getIdToKeyBindingMap().values().forEach(KeyBindingManager::register);
+		KeyBindingAccessor.getKeysById().values().forEach(KeyBindingManager::register);
 	}
 
 	public static void unpressAll() {
-		KeyBindingUtils.getIdToKeyBindingMap().values().forEach(keyBinding -> ((IKeyBinding) keyBinding).amecs$reset());
+		KeyBindingAccessor.getKeysById().values().forEach(keyBinding -> ((IKeyBinding) keyBinding).amecs$reset());
 	}
 
 	public static void onKeyPressed(Key keyCode) {
@@ -236,11 +238,12 @@ public class KeyBindingManager {
 	}
 
 	public static void updatePressedStates() {
-		long windowHandle = MinecraftClient.getInstance().getWindow().getHandle();
+		@SuppressWarnings("resource")
+		long windowHandle = MinecraftClientVersionHelper.getWindow(MinecraftClient.getInstance()).getHandle();
 		forEachKeyBinding(keyBinding -> {
 			Key key = ((IKeyBinding) keyBinding).amecs$getBoundKey();
 			boolean pressed = !keyBinding.isUnbound() && key.getCategory() == InputUtil.Type.KEYSYM && InputUtil.isKeyPressed(windowHandle, key.getCode());
-			keyBinding.setPressed(pressed);
+			KeyBindingVersionHelper.setPressed(keyBinding, pressed);
 		});
 	}
 
@@ -254,7 +257,7 @@ public class KeyBindingManager {
 				// we need to search keyBindinds that require the keyModifier
 				// and disable them
 				createFilteredStreamFunction.apply(getKeyBindingsWithKeyModifier(keyModifier)).forEach(keyBinding -> {
-					keyBinding.setPressed(false);
+					KeyBindingVersionHelper.setPressed(keyBinding, false);
 					// System.out.println("keyMod disabled: " + ((IKeyBinding) keyBinding).amecs$getBoundKey());
 				});
 
@@ -270,6 +273,6 @@ public class KeyBindingManager {
 		// This is done in MixinKeyboard#onKey
 		//// AmecsAPI.CURRENT_MODIFIERS.set(keyModifier, pressed);
 
-		getKeyBindingsWithKey(keyCode).forEach(keyBinding -> keyBinding.setPressed(pressed));
+		getKeyBindingsWithKey(keyCode).forEach(keyBinding -> KeyBindingVersionHelper.setPressed(keyBinding, pressed));
 	}
 }

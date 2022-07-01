@@ -10,14 +10,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import de.siphalor.amecs.api.AmecsKeyBinding;
-import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.KeyBindingManager;
-import de.siphalor.amecs.impl.ModifierPrefixTextProvider;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
+import de.siphalor.amecs.impl.mixinimpl.MixinKeyBindingImpl;
 import de.siphalor.amecs.impl.util.NOPMap;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
@@ -29,10 +26,6 @@ public abstract class MixinKeyBinding implements IKeyBinding {
 
 	@Shadow
 	private int timesPressed;
-
-	@Shadow
-	@Final
-	private static Map<String, KeyBinding> KEYS_BY_ID;
 
 	// set it to a NOPMap meaning everything done with this map is ignored. Because setting it to null would cause problems
 	// ... even if we remove the put in the KeyBinding constructor. Because maybe in the future this map is used elsewhere or a other mod uses it
@@ -73,32 +66,14 @@ public abstract class MixinKeyBinding implements IKeyBinding {
 		return keyModifiers;
 	}
 
+	@Override
+	public Text amecs$unmodified_getBoundKeyLocalizedText() {
+		return MixinKeyBindingImpl.getBoundKeyLocalizedText(this);
+	}
+
 	@Inject(method = "<init>(Ljava/lang/String;Lnet/minecraft/client/util/InputUtil$Type;ILjava/lang/String;)V", at = @At("RETURN"))
 	private void onConstructed(String id, InputUtil.Type type, int defaultCode, String category, CallbackInfo callbackInfo) {
 		KeyBindingManager.register((KeyBinding) (Object) this);
-	}
-
-	@SuppressWarnings("resource")
-	@Inject(method = "getBoundKeyLocalizedText", at = @At("TAIL"), cancellable = true)
-	public void getLocalizedName(CallbackInfoReturnable<Text> callbackInfoReturnable) {
-		Text name = boundKey.getLocalizedText();
-		Text fullName;
-		TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-		ModifierPrefixTextProvider.Variation variation = ModifierPrefixTextProvider.Variation.WIDEST;
-		do {
-			fullName = name;
-			for (KeyModifier keyModifier : KeyModifier.VALUES) {
-				if (keyModifier == KeyModifier.NONE) {
-					continue;
-				}
-
-				if (keyModifiers.get(keyModifier)) {
-					fullName = keyModifier.textProvider.getText(variation).append(fullName);
-				}
-			}
-		} while ((variation = variation.getSmaller()) != null && textRenderer.getWidth(fullName) > 70);
-
-		callbackInfoReturnable.setReturnValue(fullName);
 	}
 
 	@Inject(method = "matchesKey", at = @At("RETURN"), cancellable = true)
@@ -159,10 +134,5 @@ public abstract class MixinKeyBinding implements IKeyBinding {
 				cir.setReturnValue(false);
 			}
 		}
-	}
-
-	@SuppressWarnings("unused")
-	private static Map<String, KeyBinding> amecs$getIdToKeyBindingMap() {
-		return KEYS_BY_ID;
 	}
 }

@@ -1,10 +1,9 @@
 package de.siphalor.amecs.api;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import de.siphalor.amecs.impl.KeyBindingManager;
+import de.siphalor.amecs.impl.mixin.KeyBindingAccessor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.option.KeyBinding;
@@ -19,7 +18,6 @@ public class KeyBindingUtils {
 	public static final int MOUSE_SCROLL_DOWN = 513;
 
 	private static double lastScrollAmount = 0;
-	private static Map<String, KeyBinding> idToKeyBindingMap;
 
 	/**
 	 * Gets the last (y directional) scroll delta
@@ -50,26 +48,15 @@ public class KeyBindingUtils {
 	}
 
 	/**
-	 * Gets the "official" idToKeys map
+	 * Gets the "official" idToKeys map.
+	 * Name of the field as of '1.19+build.2': KEYS_BY_ID
 	 *
+	 * @deprecated This is Minecraft internal data and should not be accessible via this api. And the mapping for the field name is outdated
 	 * @return the map (use with care)
 	 */
+	@Deprecated
 	public static Map<String, KeyBinding> getIdToKeyBindingMap() {
-		if (idToKeyBindingMap == null) {
-			try {
-				// reflections accessors should be initialized statically if the are static
-				// but in this case its fine because we only do this once because it is cached in a static field
-
-				// noinspection JavaReflectionMemberAccess
-				Method method = KeyBinding.class.getDeclaredMethod("amecs$getIdToKeyBindingMap");
-				method.setAccessible(true);
-				// noinspection unchecked
-				idToKeyBindingMap = (Map<String, KeyBinding>) method.invoke(null);
-			} catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		}
-		return idToKeyBindingMap;
+		return KeyBindingAccessor.getKeysById();
 	}
 
 	/**

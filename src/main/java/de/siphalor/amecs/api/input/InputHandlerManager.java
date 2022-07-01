@@ -9,7 +9,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 
 /**
- * This class allows you to (un-)register {@link InputEventHandler}s
+ * This class allows you to (un-)register {@link InputEventHandler}s.
+ * All methods and fields in this class must be used from main thread only or manual synchronization is required.
  *
  * @see InputEventHandler#handleInput(MinecraftClient)
  * @see #handleInputEvents
@@ -17,11 +18,10 @@ import net.minecraft.client.MinecraftClient;
 @Environment(EnvType.CLIENT)
 public class InputHandlerManager {
 
-	// all methods and fields in this class must be used from main thread only or manual synchronization is required
 	private static final LinkedHashSet<InputEventHandler> INPUT_HANDLERS = new LinkedHashSet<>();
 
 	/**
-	 * This method is called from MinecraftClient.handleInputEvents()
+	 * This method is called from {@link MinecraftClient#handleInputEvents}
 	 * <br>
 	 * It calls all registered InputEventHandler
 	 *

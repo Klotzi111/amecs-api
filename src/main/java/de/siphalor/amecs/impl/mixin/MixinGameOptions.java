@@ -1,6 +1,7 @@
 package de.siphalor.amecs.impl.mixin;
 
 import java.io.*;
+import java.util.Map;
 
 import org.apache.logging.log4j.Level;
 import org.spongepowered.asm.mixin.Final;
@@ -11,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import de.siphalor.amecs.api.KeyBindingUtils;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.AmecsAPI;
 import de.siphalor.amecs.impl.KeyBindingManager;
@@ -27,7 +27,7 @@ public class MixinGameOptions {
 
 	@Shadow
 	@Final
-	public KeyBinding[] keysAll;
+	public KeyBinding[] allKeys;
 	@Unique
 	private File amecsOptionsFile;
 
@@ -35,13 +35,13 @@ public class MixinGameOptions {
 	public void write(CallbackInfo callbackInfo) {
 		try (PrintWriter writer = new PrintWriter(new FileOutputStream(amecsOptionsFile))) {
 			KeyModifiers modifiers;
-			for (KeyBinding binding : keysAll) {
+			for (KeyBinding binding : allKeys) {
 				modifiers = ((IKeyBinding) binding).amecs$getKeyModifiers();
 				writer.println(KEY_MODIFIERS_PREFIX + binding.getTranslationKey() + ":" + modifiers.serializeValue());
 			}
 		} catch (FileNotFoundException e) {
 			AmecsAPI.log(Level.ERROR, "Failed to save Amecs API modifiers to options file:");
-			e.printStackTrace();
+			AmecsAPI.logException(Level.ERROR, e);
 		}
 	}
 
@@ -55,6 +55,7 @@ public class MixinGameOptions {
 			return;
 		}
 		try (BufferedReader reader = new BufferedReader(new FileReader(amecsOptionsFile))) {
+			Map<String, KeyBinding> keysById = KeyBindingAccessor.getKeysById();
 			String line;
 			while ((line = reader.readLine()) != null) {
 				try {
@@ -69,7 +70,7 @@ public class MixinGameOptions {
 						continue;
 					}
 					id = id.substring(KEY_MODIFIERS_PREFIX.length());
-					KeyBinding keyBinding = KeyBindingUtils.getIdToKeyBindingMap().get(id);
+					KeyBinding keyBinding = keysById.get(id);
 					if (keyBinding == null) {
 						AmecsAPI.log(Level.WARN, "Unknown keybinding identifier in Amecs API options file: " + id);
 						continue;
@@ -90,7 +91,7 @@ public class MixinGameOptions {
 			}
 		} catch (IOException e) {
 			AmecsAPI.log(Level.ERROR, "Failed to load Amecs API options file:");
-			e.printStackTrace();
+			AmecsAPI.logException(Level.ERROR, e);
 		}
 	}
 }

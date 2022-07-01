@@ -14,7 +14,15 @@ import net.minecraft.client.MinecraftClient;
 public interface InputEventHandler {
 
 	/**
-	 * This method is called from {@link InputHandlerManager#handleInputEvents(MinecraftClient)}
+	 * This method is called from {@link InputHandlerManager#handleInputEvents(MinecraftClient)}.
+	 * The method body typically checks the key binding's wasPressed() in a loop. Example:
+	 * <br>
+	 *
+	 * <pre>
+	 * while (keyBinding.wasPressed()) {
+	 * 	// do your action
+	 * }
+	 * </pre>
 	 *
 	 * @see InputHandlerManager#handleInputEvents(MinecraftClient)
 	 *

@@ -8,7 +8,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.InputUtil;
 
-@SuppressWarnings("WeakerAccess")
 @Environment(EnvType.CLIENT)
 public enum KeyModifier {
 	// the order of the enums makes a difference when generating the shown name in the gui

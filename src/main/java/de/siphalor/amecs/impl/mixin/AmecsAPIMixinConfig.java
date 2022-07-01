@@ -1,7 +1,6 @@
 package de.siphalor.amecs.impl.mixin;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -13,101 +12,43 @@ import org.objectweb.asm.tree.MethodNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
-import de.siphalor.amecs.impl.compat.controlling.CompatibilityControlling;
-import de.siphalor.amecs.impl.compat.nmuk.CompatibilityNMUK;
-import de.siphalor.amecs.impl.version.MinecraftVersionHelper;
+import de.klotzi111.fabricmultiversionhelper.api.mapping.MappingHelper;
+import de.klotzi111.fabricmultiversionhelper.api.mixinselect.MixinSelectConfig;
+import de.klotzi111.fabricmultiversionhelper.impl.mixinselect.ModVersionHelper;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.MappingResolver;
+import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.Version;
 
 @Environment(EnvType.CLIENT)
 public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 
-	public static final String MIXIN_VERSIONED_PACKAGE = "versioned";
-
-	public static String prependMixinPackage(String className, String prefix) {
-		if (prefix == null) {
-			return className;
-		}
-		return prefix + "." + className;
-	}
-
-	public static List<String> prependMixinPackages(List<String> classNames, String prefix) {
-		List<String> ret = new ArrayList<>(classNames.size());
-		for (String className : classNames) {
-			ret.add(prependMixinPackage(className, prefix));
-		}
-		return ret;
-	}
-
-	private List<String> finalAdditionalMixinClasses = new ArrayList<>();
-
-	private List<String> additionalMixinClasses = new ArrayList<>();
-
-	private void addMixins(String... mixinNames) {
-		Collections.addAll(additionalMixinClasses, mixinNames);
-	}
-
-	private void pushMixinsToFinal() {
-		finalAdditionalMixinClasses.addAll(additionalMixinClasses);
-		additionalMixinClasses.clear();
-	}
+	// we can NOT use MOD_ID field because that would cause all statically class references in that class to be loaded to early
+	private static final ModContainer MOD_CONTAINER = FabricLoader.getInstance().getModContainer("amecsapi").get();
 
 	private static final String MOUSE_CLASS_INTERMEDIARY = "net.minecraft.class_312";
 	private static final String SCREEN_CLASS_INTERMEDIARY = "net.minecraft.class_437";
 	private static final String ELEMENT_CLASS_INTERMEDIARY = "net.minecraft.class_364";
-
-	private final MappingResolver mappingResolver = FabricLoader.getInstance().getMappingResolver();
 
 	private String mouseClassRemapped;
 	private String screenClassRemappedType;
 	private String screenMouseScrolledRemapped;
 	private String onMouseScrollRemapped;
 
+	private List<String> mixinClasses = null;
+
 	@Override
 	public void onLoad(String mixinPackage) {
-		mouseClassRemapped = mappingResolver.mapClassName("intermediary", MOUSE_CLASS_INTERMEDIARY);
-		screenClassRemappedType = mappingResolver.mapClassName("intermediary", SCREEN_CLASS_INTERMEDIARY).replace('.', '/');
-		screenMouseScrolledRemapped = mappingResolver.mapMethodName("intermediary", ELEMENT_CLASS_INTERMEDIARY, "method_25401", "(DDD)Z");
-		onMouseScrollRemapped = mappingResolver.mapMethodName("intermediary", MOUSE_CLASS_INTERMEDIARY, "method_1598", "(JDD)V");
+		// we can NOT use .class on the classes because that would trigger them to load and we are not allowed to load classes that early
+		mouseClassRemapped = MappingHelper.CLASS_MAPPER_FUNCTION.apply(MOUSE_CLASS_INTERMEDIARY);
+		screenClassRemappedType = MappingHelper.CLASS_MAPPER_FUNCTION.apply(SCREEN_CLASS_INTERMEDIARY).replace('.', '/');
+		screenMouseScrolledRemapped = MappingHelper.MAPPING_RESOLVER.mapMethodName(MappingHelper.NAMESPACE_INTERMEDIARY, ELEMENT_CLASS_INTERMEDIARY, "method_25401", "(DDD)Z");
+		onMouseScrollRemapped = MappingHelper.MAPPING_RESOLVER.mapMethodName(MappingHelper.NAMESPACE_INTERMEDIARY, MOUSE_CLASS_INTERMEDIARY, "method_1598", "(JDD)V");
 
-		// versioned mixins
-
-		// TODO: add a json config file where for each mixinClassName a modID requirement can be made. Like in the fabric.mod.json#depends.
-		// for now doing it in here
-
-		// the order of the if statements is important. The highest version must be checked first
-		if (MinecraftVersionHelper.IS_AT_LEAST_V1_18) {
-			addMixins("MixinKeybindsScreen");
-		} else {
-			// Minecraft 1.17 and below
-			addMixins("MixinControlsOptionsScreen");
-		}
-
-		// Mouse changes
-		if (MinecraftVersionHelper.IS_AT_LEAST_V1_18_2) {
-			addMixins("MixinMouse_1_18_2");
-		} else {
-			addMixins("MixinMouse_1_14");
-		}
-
-		additionalMixinClasses = prependMixinPackages(additionalMixinClasses, MIXIN_VERSIONED_PACKAGE);
-		pushMixinsToFinal();
-
-		if (CompatibilityControlling.MOD_PRESENT) {
-			addMixins("MixinKeyEntry", "MixinNewKeyBindsScreen");
-
-			additionalMixinClasses = prependMixinPackages(additionalMixinClasses, CompatibilityControlling.MOD_NAME);
-			pushMixinsToFinal();
-		}
-
-		if (CompatibilityNMUK.MOD_PRESENT) {
-			addMixins("MixinNMUKKeyBindingHelper");
-
-			additionalMixinClasses = prependMixinPackages(additionalMixinClasses, CompatibilityNMUK.MOD_NAME);
-			pushMixinsToFinal();
-		}
+		MixinSelectConfig selectConfig = MixinSelectConfig.loadMixinSelectConfig(MOD_CONTAINER);
+		HashMap<String, Version> modsWithVersion = ModVersionHelper.getAllModsWithVersion(FabricLoader.getInstance(), true);
+		mixinClasses = selectConfig.getAllowedMixins(mixinPackage, this.getClass().getClassLoader(), modsWithVersion);
 	}
 
 	@Override
@@ -127,7 +68,7 @@ public class AmecsAPIMixinConfig implements IMixinConfigPlugin {
 
 	@Override
 	public List<String> getMixins() {
-		return finalAdditionalMixinClasses == null ? null : (finalAdditionalMixinClasses.isEmpty() ? null : finalAdditionalMixinClasses);
+		return mixinClasses == null ? null : (mixinClasses.isEmpty() ? null : mixinClasses);
 	}
 
 	@Override

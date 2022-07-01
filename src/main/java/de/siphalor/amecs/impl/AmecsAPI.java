@@ -14,10 +14,11 @@ import net.fabricmc.api.Environment;
 @ApiStatus.Internal
 public class AmecsAPI implements ClientModInitializer {
 
-	public static Logger LOGGER = LogManager.getLogger();
-
 	public static final String MOD_ID = "amecsapi";
 	public static final String MOD_NAME = "Amecs API";
+
+	private static final String LOG_PREFIX = "[" + MOD_NAME + "] ";
+	public static Logger LOGGER = LogManager.getLogger();
 
 	public static final KeyModifiers CURRENT_MODIFIERS = new KeyModifiers();
 
@@ -34,7 +35,10 @@ public class AmecsAPI implements ClientModInitializer {
 	}
 
 	public static void log(Level level, String message) {
-		LOGGER.log(level, "[" + MOD_NAME + "] " + message);
+		LOGGER.log(level, LOG_PREFIX + message);
 	}
 
+	public static void logException(Level level, Throwable e) {
+		LOGGER.catching(level, e);
+	}
 }

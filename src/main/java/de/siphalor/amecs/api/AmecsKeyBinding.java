@@ -1,5 +1,6 @@
 package de.siphalor.amecs.api;
 
+import de.siphalor.amecs.api.input.InputEventHandler;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -62,13 +63,19 @@ public class AmecsKeyBinding extends KeyBinding {
 
 	/**
 	 * A convenience method which gets fired when the keybinding is used
+	 *
+	 * @deprecated This method gets called directly when the keybinding was set pressed (true). This is bad for input processing. Use {@link InputEventHandler} instead
 	 */
+	@Deprecated
 	public void onPressed() {
 	}
 
 	/**
 	 * A convenience method which gets fired when the keybinding is stopped being used
+	 *
+	 * @deprecated This method gets called directly when the keybinding was set pressed (false). This is bad for input processing. Use {@link InputEventHandler} instead
 	 */
+	@Deprecated
 	public void onReleased() {
 	}
 

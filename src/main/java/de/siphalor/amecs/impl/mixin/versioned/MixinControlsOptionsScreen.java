@@ -14,17 +14,16 @@ import de.siphalor.amecs.impl.mixinimpl.MixinKeybindsScreenImpl;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.ControlsListWidget;
 import net.minecraft.client.gui.screen.option.ControlsOptionsScreen;
-import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil.Key;
 import net.minecraft.text.Text;
 
 @Mixin(ControlsOptionsScreen.class)
-public abstract class MixinControlsOptionsScreen extends GameOptionsScreen implements IKeybindsScreen {
+public abstract class MixinControlsOptionsScreen extends Screen implements IKeybindsScreen {
 	// ignored
-	public MixinControlsOptionsScreen(Screen screen, GameOptions gameOptions, Text text) {
-		super(screen, gameOptions, text);
+	protected MixinControlsOptionsScreen(Text title) {
+		super(title);
 	}
 
 	@Shadow
@@ -97,7 +96,7 @@ public abstract class MixinControlsOptionsScreen extends GameOptionsScreen imple
 			target = "Lnet/minecraft/client/option/GameOptions;setKeyCode(Lnet/minecraft/client/option/KeyBinding;Lnet/minecraft/client/util/InputUtil$Key;)V",
 			ordinal = 0))
 	public void onKeyPressed(int keyCode, int scanCode, int int_3, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-		MixinKeybindsScreenImpl.onKeyPressed(keyCode, scanCode, focusedBinding, gameOptions);
+		MixinKeybindsScreenImpl.onKeyPressed(this, keyCode, scanCode, focusedBinding);
 	}
 
 	@Redirect(

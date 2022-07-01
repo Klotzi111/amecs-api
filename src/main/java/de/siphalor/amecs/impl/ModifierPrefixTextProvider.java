@@ -1,17 +1,16 @@
 package de.siphalor.amecs.impl;
 
+import de.klotzi111.fabricmultiversionhelper.api.text.IMutableText;
+import de.klotzi111.fabricmultiversionhelper.api.text.TextWrapper;
 import de.siphalor.amecs.api.KeyModifier;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.BaseText;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
 public class ModifierPrefixTextProvider {
-	private static final Text SUFFIX = new LiteralText(" + ");
-	private static final Text COMPRESSED_SUFFIX = new LiteralText("+");
+	private static final Text SUFFIX = TextWrapper.literal(" + ");
+	private static final Text COMPRESSED_SUFFIX = TextWrapper.literal("+");
 	private final String translationKey;
 
 	public ModifierPrefixTextProvider(KeyModifier modifier) {
@@ -22,16 +21,16 @@ public class ModifierPrefixTextProvider {
 		this.translationKey = translationKey;
 	}
 
-	protected BaseText getBaseText(Variation variation) {
+	protected Text getBaseText(Variation variation) {
 		return variation.getTranslatableText(translationKey);
 	}
 
-	public BaseText getText(Variation variation) {
-		BaseText text = getBaseText(variation);
+	public Text getText(Variation variation) {
+		IMutableText text = (IMutableText) getBaseText(variation);
 		if (variation == Variation.COMPRESSED) {
-			text.append(COMPRESSED_SUFFIX);
+			text.fmvh$append(COMPRESSED_SUFFIX);
 		} else {
-			text.append(SUFFIX);
+			text.fmvh$append(SUFFIX);
 		}
 		return text;
 	}
@@ -54,8 +53,8 @@ public class ModifierPrefixTextProvider {
 			this.translateKeySuffix = translateKeySuffix;
 		}
 
-		public TranslatableText getTranslatableText(String translationKey) {
-			return new TranslatableText(translationKey + translateKeySuffix);
+		public Text getTranslatableText(String translationKey) {
+			return TextWrapper.translatable(translationKey + translateKeySuffix);
 		}
 
 		public Variation getNextVariation(int amount) {

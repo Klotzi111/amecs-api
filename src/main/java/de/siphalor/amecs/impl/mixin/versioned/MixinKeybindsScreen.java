@@ -99,7 +99,7 @@ public abstract class MixinKeybindsScreen extends GameOptionsScreen implements I
 			target = "Lnet/minecraft/client/option/GameOptions;setKeyCode(Lnet/minecraft/client/option/KeyBinding;Lnet/minecraft/client/util/InputUtil$Key;)V",
 			ordinal = 0))
 	public void onKeyPressed(int keyCode, int scanCode, int int_3, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-		MixinKeybindsScreenImpl.onKeyPressed(keyCode, scanCode, selectedKeyBinding, gameOptions);
+		MixinKeybindsScreenImpl.onKeyPressed(this, keyCode, scanCode, selectedKeyBinding);
 	}
 
 	@Redirect(

@@ -6,6 +6,7 @@ import de.siphalor.amecs.api.KeyModifiers;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
 @ApiStatus.Internal
@@ -21,4 +22,6 @@ public interface IKeyBinding {
 	void amecs$reset();
 
 	KeyModifiers amecs$getKeyModifiers();
+
+	Text amecs$unmodified_getBoundKeyLocalizedText();
 }

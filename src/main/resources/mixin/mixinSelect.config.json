@@ -1,0 +1,126 @@
+{
+	"defaultConditions": {
+		"ENVIRONMENT": [
+			"CLIENT"
+		]
+	},
+	"mixinConditions": {
+		"KeyBindingAccessor": [
+			{}
+		],
+		"MixinGameOptions": [
+			{}
+		],
+		"MixinInputUtilType": [
+			{}
+		],
+		"MixinKeyBinding": [
+			{}
+		],
+		"MixinKeyBindingEntry": [
+			{}
+		],
+		"MixinKeyboard": [
+			{}
+		],
+		"MixinMinecraftClient": [
+			{}
+		],
+		"MixinMouse": [
+			{}
+		],
+		"versioned.MixinKeybindsScreen": [
+			{
+				"minecraft": [
+					">=1.18"
+				]
+			}
+		],
+		"versioned.MixinControlsOptionsScreen": [
+			{
+				"minecraft": [
+					"<1.18"
+				]
+			}
+		],
+		"versioned.MixinKeyboard_1_16": [
+			{
+				"minecraft": [
+					">=1.16"
+				]
+			}
+		],
+		"versioned.MixinKeyboard_1_14": [
+			{
+				"minecraft": [
+					"<1.16"
+				]
+			}
+		],
+		"versioned.MixinKeyBinding_1_16": [
+			{
+				"minecraft": [
+					">=1.16"
+				]
+			}
+		],
+		"versioned.MixinKeyBinding_1_14": [
+			{
+				"minecraft": [
+					"<1.16"
+				]
+			}
+		],
+		"versioned.MixinMouse_1_18_2": [
+			{
+				"minecraft": [
+					">=1.18.2"
+				]
+			}
+		],
+		"versioned.MixinMouse_1_14": [
+			{
+				"minecraft": [
+					"<1.18.2"
+				]
+			}
+		],
+		"controlling.MixinDisplayMode": [
+			{
+				"minecraft": [
+					">=1.18"
+				],
+				"controlling": [
+					">=9.0"
+				]
+			}
+		],
+		"controlling.MixinKeyEntry": [
+			{
+				"minecraft": [
+					">=1.18"
+				],
+				"controlling": [
+					">=9.0"
+				]
+			}
+		],
+		"controlling.MixinNewKeyBindsScreen": [
+			{
+				"minecraft": [
+					">=1.18"
+				],
+				"controlling": [
+					">=9.0"
+				]
+			}
+		],
+		"nmuk.MixinNMUKKeyBindingHelper": [
+			{
+				"nmuk": [
+					"*"
+				]
+			}
+		]
+	}
+}
