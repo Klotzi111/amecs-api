@@ -47,7 +47,7 @@ dependencies {
 	include(modApi(klotzi111_localDeps ? "de.klotzi111:FabricMultiVersionHelper:1+" : "com.github.Klotzi111:FabricMultiVersionHelper:main-SNAPSHOT"))
 	
 	// NMUK
-	modCompileOnly(klotzi111_localDeps ? "de.siphalor:nmuk-${project.target_minecraft_major_version}:1+" : "com.github.Klotzi111:nmuk:main-SNAPSHOT") {
+	modCompileOnly(klotzi111_localDeps ? "de.siphalor:nmuk-${project.target_minecraft_major_version}:1+" : "com.github.Klotzi111:nmuk:${project.target_minecraft_major_version}-SNAPSHOT") {
 		exclude(group: "*")
 	}
 	
